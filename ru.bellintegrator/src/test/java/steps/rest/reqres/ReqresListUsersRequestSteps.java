@@ -50,12 +50,14 @@ public class ReqresListUsersRequestSteps {
         Assert.assertNotNull(listUsersDTO);
     }
 
-    @Тогда("У всех пользователей одинаковые аватары")
+    @Тогда("У всех пользователей одинаковые имена аватаров")
     public void avatarsIsSame() {
         String[] avatarPath = listUsersDTO.getData().get(0).getAvatar().split("/");
         String avatarName = avatarPath[avatarPath.length - 1];
         for (int i = 0; i < listUsersDTO.getData().size(); i++) {
-            Assert.assertTrue(listUsersDTO.getData().get(i).getAvatar().contains(avatarName));
+            String[] currentAvatarPath = listUsersDTO.getData().get(i).getAvatar().split("/");
+            String currentAvatarName = currentAvatarPath[currentAvatarPath.length - 1];
+            Assert.assertEquals(avatarName, currentAvatarName);
         }
     }
 }
