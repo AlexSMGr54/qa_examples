@@ -22,12 +22,28 @@ public class OpenBankMainPage extends OpenBankBasePage {
 
     //Метод необходим для инициализации переменных currencyBuy и currencySell для указанной валюты
     public boolean getExchangeRate(String currencyName) {
-        List<WebElement> resultsList = FindHelper.findElements(
+        List<WebElement> resultsTableContent = FindHelper.findElements(
                 currencyCourseContext.getElement(),
                 By.xpath("//tr[@class='main-page-exchange__row main-page-exchange__row--with-border']"));
+        WebElement resultsTableHeader = FindHelper.findElement(
+                currencyCourseContext.getElement(),
+                By.xpath("//tr[@class='main-page-exchange__table-header']"));
 
-        if (resultsList != null) {
-            for (WebElement element : resultsList) {
+        if (resultsTableContent != null && resultsTableHeader != null) {
+
+            Integer currencyBuyCol = null;
+            Integer currencySellCol = null;
+
+            List<WebElement> tableCol = FindHelper.findElements(resultsTableHeader, By.tagName("td"));
+            for (int i = 0; i < tableCol.size(); i++) {
+                if (ActionsHelper.getTextFromElement(tableCol.get(i)).contains("Банк покупает")) {
+                    currencyBuyCol = i + 1;
+                } else if (ActionsHelper.getTextFromElement(tableCol.get(i)).contains("Банк продает")) {
+                    currencySellCol = i + 1;
+                }
+            }
+
+            for (WebElement element : resultsTableContent) {
                 String result = ActionsHelper.getTextFromElement(
                         FindHelper.findElement(
                                 element,
@@ -35,9 +51,11 @@ public class OpenBankMainPage extends OpenBankBasePage {
                 );
                 if (result != null && result.equals(currencyName)) {
                     currencyBuy = ActionsHelper.getFloatFromElement(
-                            FindHelper.findElement(element, By.xpath("td[2]")));
+                            FindHelper.findElement(element, By.xpath("td[" + currencyBuyCol + "]")));
                     currencySell = ActionsHelper.getFloatFromElement(
-                            FindHelper.findElement(element, By.xpath("td[4]")));
+                            FindHelper.findElement(element, By.xpath("td[" + currencySellCol + "]")));
+                    System.out.println(currencyBuy);
+                    System.out.println(currencySell);
                     return true;
                 }
             }
